@@ -716,7 +716,7 @@ static_db:
   adapter: sqlite3
   pool: 1
   timeout: 500
-  database db/static.sqlite3
+  database: db/static.sqlite3
 
 <%= ENV["RAILS_ENV"] || ENV["RACK_ENV"] %>:
   <%= attribute "adapter",  adapter %>
