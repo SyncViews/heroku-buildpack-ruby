@@ -576,6 +576,10 @@ WARNING
           yaml_lib       = File.expand_path("#{libyaml_dir}/lib").shellescape
           pwd            = Dir.pwd
           bundler_path   = "#{pwd}/#{slug_vendor_base}/gems/#{BUNDLER_GEM_PATH}/lib"
+          # Will Newbery: Make SQLite available to the compiler
+          # TODO: Should ideally not drop into the libyaml dirs, but is simpler
+          run("cp #{File.expand_path( "../../vendor/sqlite3.h", $PROGRAM_NAME )} #{yaml_include}/")
+          run( "/bin/ln -s /usr/lib/x86_64-linux-gnu/libsqlite3.so.0 #{yaml_lib}/libsqlite3.so"  )
           # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
           # codon since it uses bundler.
           env_vars       = {
@@ -656,6 +660,7 @@ ERROR
   end
 
   # writes ERB based database.yml for Rails. The database.yml uses the DATABASE_URL from the environment during runtime.
+  # Will Newbery: Added static_db: to the resulting yml. Ideally would take from origenal file, but this is simpler.
   def create_database_yml
     instrument 'ruby.create_database_yml' do
       return false unless File.directory?("config")
@@ -706,6 +711,12 @@ port = uri.port
 params = CGI.parse(uri.query || "")
 
 %>
+
+static_db:
+  adapter: sqlite3
+  pool: 1
+  timeout: 500
+  database db/static.sqlite3
 
 <%= ENV["RAILS_ENV"] || ENV["RACK_ENV"] %>:
   <%= attribute "adapter",  adapter %>
